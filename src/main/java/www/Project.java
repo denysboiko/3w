@@ -5,6 +5,7 @@ import java.util.List;
 
 public class Project {
 
+    private final Long id;
     private String projectCode;
     private String projectTitle;
     private Date startDate;
@@ -14,5 +15,21 @@ public class Project {
     private List<Organization> implementingPartners;
     private Sector sector;
     private String status;
+
+    Project(Long id, String projectTitle) {
+        this.id = id;
+        this.projectTitle = projectTitle;
+
+    }
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getProjectTitle() {
+        return projectTitle;
+    }
+
 
 }
