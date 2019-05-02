@@ -1,9 +1,14 @@
 package www;
 
+
+import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static org.springframework.hateoas.server.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.ControllerLinkBuilder.methodOn;
 
 @RestController
 public class Controller {
@@ -33,9 +38,13 @@ public class Controller {
     }
 
     @GetMapping("/users/{id}")
-    User getUser(@PathVariable Long id) {
-        return repository.findById(id)
+    EntityModel<User> getUser(@PathVariable Long id) {
+         User user = repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
+
+        return new EntityModel<>(user,
+                linkTo(methodOn(Controller.class).getUser(id)).withSelfRel(),
+                linkTo(methodOn(Controller.class).getUsers()).withRel("users"));
     }
 
     @PutMapping("/users/{id}")
