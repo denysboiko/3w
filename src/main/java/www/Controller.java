@@ -1,14 +1,16 @@
 package www;
 
 
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
-import static org.springframework.hateoas.server.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.ControllerLinkBuilder.methodOn;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 public class Controller {
@@ -17,9 +19,11 @@ public class Controller {
     private final AtomicLong counter = new AtomicLong();
 
     private final UserRepository repository;
+    private final UserResourceAssembler assembler;
 
-    public Controller(UserRepository repository) {
+    public Controller(UserRepository repository, UserResourceAssembler assembler) {
         this.repository = repository;
+        this.assembler = assembler;
     }
 
     @RequestMapping(value = "/test", method = RequestMethod.GET)
@@ -28,8 +32,15 @@ public class Controller {
     }
 
     @GetMapping("/users")
-    List<User> getUsers() {
-        return repository.findAll();
+    CollectionModel<EntityModel<User>> getUsers() {
+
+        List<EntityModel<User>> users = repository.findAll().stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+
+        return new CollectionModel<>(users,
+                linkTo(methodOn(Controller.class).getUsers()).withSelfRel()
+        );
     }
 
     @PostMapping("/users")
@@ -42,9 +53,7 @@ public class Controller {
          User user = repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
 
-        return new EntityModel<>(user,
-                linkTo(methodOn(Controller.class).getUser(id)).withSelfRel(),
-                linkTo(methodOn(Controller.class).getUsers()).withRel("users"));
+        return assembler.toModel(user);
     }
 
     @PutMapping("/users/{id}")
