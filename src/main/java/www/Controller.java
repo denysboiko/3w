@@ -26,6 +26,12 @@ public class Controller {
         this.assembler = assembler;
     }
 
+    @RequestMapping(value = "/")
+    public String index() {
+        return "index";
+    }
+
+
     @RequestMapping(value = "/test", method = RequestMethod.GET)
     public Project project(@RequestParam(value = "title", defaultValue = "Test") String projectTitle) {
         return new Project(counter.incrementAndGet(), String.format(template, projectTitle));

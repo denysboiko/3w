@@ -1,8 +1,14 @@
 package www;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Date;
 import java.util.List;
 
+
+@Getter
+@Setter
 public class Project {
 
     private final Long id;
@@ -30,6 +36,5 @@ public class Project {
     public String getProjectTitle() {
         return projectTitle;
     }
-
 
 }
